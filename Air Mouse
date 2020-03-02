@@ -1,0 +1,82 @@
+#include "mbed.h"
+#include "TSISensor.h"
+#include "USBMouse.h"
+#include "MMA8451Q.h"
+
+#define MMA8451_I2C_ADDRESS (0x1d<<1)
+
+int main()
+{
+TSISensor tsi;    
+USBMouse mouse;
+MMA8451Q acc(PTE25,PTE24,MMA8451_I2C_ADDRESS);
+Serial pc(USBTX,USBRX);
+
+int x;
+int y;
+float tsi_value; 
+char q;
+int z=2;
+while(1)
+    {
+                     x=z*(acc.getAccX());
+                     y=z*(acc.getAccY());
+                     mouse.move(-y,x);   
+         if(pc.readable())
+                    {
+                      q = pc.getc();
+                      pc.printf("enter the sensitivity of mouse");
+                      }
+                      
+                      
+                       
+                      if (q=='a')
+                            {
+                     z=5;      
+                            }
+                      else if(q=='b')
+                            {
+                     
+                    z=8;        
+                            }
+                      else if(q=='c')
+                            {
+                     z=11;        
+                            }      
+                     else if(q=='d')
+                            {
+                     z=14;        
+                            }      
+                    else if(q=='e')
+                            {
+                     z=17;        
+                            }         
+                    else
+                    {
+                    z = 5;      
+                    }
+                          
+                     
+                                    
+        
+        tsi_value = tsi.readPercentage();
+        if (tsi_value>0&&tsi_value<0.4)
+             {
+                mouse.press(MOUSE_RIGHT);
+                //mouse.release(MOUSE_RIGHT);
+             }
+        else if (tsi_value>=0.6&&tsi_value<=1)
+             {
+                mouse.press(MOUSE_LEFT);
+                //mouse.release(MOUSE_LEFT);
+             }            
+        
+        else
+           {
+               mouse.release(MOUSE_RIGHT);
+               mouse.release(MOUSE_LEFT);
+           }
+    
+         }        
+
+}
